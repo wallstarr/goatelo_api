@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 app.get('/api', (req, res) => {
     const query = req.query
 
-    if (query.max && query.max) { // returns players that are in a range of elo values
+    if (query.min && query.max) { // returns players that are in a range of elo values
         Player.find({goatElo: { $gte: query.min, $lte: query.max }})
             .then((players) => {
                 res.json({
@@ -33,7 +33,7 @@ app.get('/api', (req, res) => {
             .catch(() => {
                 console.log(error)
             })
-    } else if (query.randomPlayerPair === "1") { // returns two random players with near elo values
+    } else if (query.randomPlayerPair === "1") { // returns two random players with close elo values
         Player.countDocuments().exec((err, count) => {
             var randomPlayerOneIndex = Math.floor(Math.random() * count)
             const arrayOfValidPlayers = []
@@ -42,10 +42,16 @@ app.get('/api', (req, res) => {
                     arrayOfValidPlayers.push(x)
                 }
             }
-            console.log(arrayOfValidPlayers)
 
-            const playerOne = Player.findOne().skip(randomPlayerOneIndex).exec((err, result) => {
-                console.log(result.firstName)
+            const randomValue = Math.floor(Math.random() * arrayOfValidPlayers.length)
+            const randomPlayerTwoIndex = arrayOfValidPlayers[randomValue]
+
+            Player.findOne().skip(randomPlayerOneIndex).exec((err, playerOne) => {
+                Player.findOne().skip(randomPlayerTwoIndex).exec((err, playerTwo) => {
+                    res.json({
+                        playerOne, playerTwo
+                    })
+                })
             })
         })
     }
