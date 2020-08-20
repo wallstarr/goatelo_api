@@ -17,7 +17,7 @@ mongoose.connection.on("connected", () => {
 app.get('/api/players', (req, res) => {
     const query = req.query
     if (query.min && query.max) { // returns players that are in a range of elo values
-        Player.find({goatElo: { $gte: query.min, $lte: query.max }})
+        Player.find({goatElo: { $gte: query.min, $lte: query.max }}).sort({"goatElo": -1})
             .then((players) => {
                 res.json({
                     players
@@ -28,7 +28,7 @@ app.get('/api/players', (req, res) => {
             })
     } else if (query.randomPlayerPair === "1") { // returns two random players with close elo values
         Player.countDocuments().exec((err, count) => {
-            var randomPlayerOneIndex = Math.floor(Math.random() * count)
+            const randomPlayerOneIndex = Math.floor(Math.random() * count)
             const arrayOfValidPlayers = []
             for (let x = randomPlayerOneIndex - 2; x < randomPlayerOneIndex + 3; x++) {
                 if (x >= 0 && x < count && x != randomPlayerOneIndex) {
@@ -39,8 +39,8 @@ app.get('/api/players', (req, res) => {
             const randomValue = Math.floor(Math.random() * arrayOfValidPlayers.length)
             const randomPlayerTwoIndex = arrayOfValidPlayers[randomValue]
 
-            Player.findOne().skip(randomPlayerOneIndex).exec((err, playerOne) => {
-                Player.findOne().skip(randomPlayerTwoIndex).exec((err, playerTwo) => {
+            Player.findOne().sort({"goatElo": -1}).skip(randomPlayerOneIndex).exec((err, playerOne) => {
+                Player.findOne().sort({"goatElo": -1}).skip(randomPlayerTwoIndex).exec((err, playerTwo) => {
                     res.json({
                         playerOne, playerTwo
                     })
@@ -48,7 +48,7 @@ app.get('/api/players', (req, res) => {
             })
         })
     } else { // simply return all players
-        Player.find()
+        Player.find().sort({"goatElo": -1})
             .then((players) => {
                 res.json({
                     players
@@ -56,6 +56,13 @@ app.get('/api/players', (req, res) => {
             })
     }
 })
+
+/*
+  Notes:
+  This patch is for taking two players respective _id's and 
+  applying an elo adjustment according to who won. If query.winner = "1", then 
+  the player with _idOne wins, and vice versa. 
+*/
 
 app.patch('/api/players', async (req, res) => {
     const query = req.query
@@ -76,9 +83,9 @@ app.patch('/api/players', async (req, res) => {
         }
 
         if (playerOne && playerTwo) {
-            // adjustEloRatings(playerOne, playerTwo, query.winner === "1" ? true : false)
-            // await Player.updateOne({_id: playerOne._id}, {$set: {goatElo: playerOne.goatElo}})
-            // await Player.updateOne({_id: playerTwo._id}, {$set: {goatElo: playerTwo.goatElo}})
+            adjustEloRatings(playerOne, playerTwo, query.winner === "1" ? true : false)
+            await Player.updateOne({_id: playerOne._id}, {$set: {goatElo: playerOne.goatElo}})
+            await Player.updateOne({_id: playerTwo._id}, {$set: {goatElo: playerTwo.goatElo}})
         } else {
             res.json({
                 message: "Error in retrieving players."
