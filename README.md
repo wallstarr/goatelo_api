@@ -13,7 +13,7 @@ Create your own MongoDB server -- if you wish to use Atlas, create a free one on
 Then run the addingPlayers.js script to add my rankings to your MongoDB server (essentially in tier list format). Change the values of the players's elo values as you see fit. 
 
 ```
-nodemon addingPlayers.js (assuming you have nodemon globally installed)
+node addingPlayers.js
 ```
 
 ### Then use the API routes in the following ways (through localhost:3000):
