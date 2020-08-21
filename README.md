@@ -10,10 +10,11 @@ npm install
 ```
 Create your own MongoDB server -- if you wish to use Atlas, create a free one on their [website](https://www.mongodb.com/cloud/atlas). Then, replace DATABASE_URL in the .env_sample file with your own collection link and rename .env_sample to .env.
 
-Then run the addingPlayers.js script to add my rankings to your MongoDB server (essentially in tier list format). Change the values of the players's elo values as you see fit. 
+Then run the addingPlayers.js script to add my rankings to your MongoDB server (essentially in tier list format). Change the values of the players's elo values as you see fit. Then run the server.
 
 ```
 node addingPlayers.js
+nodemon app.js
 ```
 
 ### Then use the API routes in the following ways (through localhost:3000):
