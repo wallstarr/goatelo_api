@@ -57,6 +57,31 @@ app.get('/api/players', (req, res) => {
     }
 })
 
+
+app.get('/api/players/randomPair', (req, res) => {
+    // returns two random players with close elo values
+    Player.countDocuments().exec((err, count) => {
+        const randomPlayerOneIndex = Math.floor(Math.random() * count)
+        const arrayOfValidPlayers = []
+        for (let x = randomPlayerOneIndex - 2; x < randomPlayerOneIndex + 3; x++) {
+            if (x >= 0 && x < count && x != randomPlayerOneIndex) {
+                arrayOfValidPlayers.push(x)
+            }
+        }
+
+        const randomValue = Math.floor(Math.random() * arrayOfValidPlayers.length)
+        const randomPlayerTwoIndex = arrayOfValidPlayers[randomValue]
+
+        Player.findOne().sort({"goatElo": -1}).skip(randomPlayerOneIndex).exec((err, playerOne) => {
+            Player.findOne().sort({"goatElo": -1}).skip(randomPlayerTwoIndex).exec((err, playerTwo) => {
+                res.json({
+                    playerOne, playerTwo
+                })
+            })
+        })
+    })
+})
+
 /*
   Notes:
   This patch is for taking two players respective _id's and 
@@ -66,7 +91,7 @@ app.get('/api/players', (req, res) => {
 
 app.patch('/api/players', async (req, res) => {
     const query = req.query
-    if (query._idOne && query._idTwo && query.winner) {
+    if (query._idOne && query._idTwo && query.winner && query._idOne !== query._idTwo) {
         
         let playerOne = false
         let playerTwo = false
