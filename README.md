@@ -22,5 +22,3 @@ nodemon app.js
 - GET: **localhost:3000/api/players/randomPair** - retrieves two random players that are close in elo value. 
 - GET: **localhost:3000/api/players?min=x&max=y** - retrieves all players with elo values in between and including x and y. 
 - PATCH: **localhost:3000/api/players?_idOne=x&_idTwo=y&winner=1** - updates player elo values depending on the value of winner. _idOne and _idTwo are the MongoDB _id's assigned to two distinct players. If winner === 1, then the player with _idOne wins, and vice versa if the winner !== 1. Each player's respective elo values are adjusted and updated using the [elo ranking system](https://en.wikipedia.org/wiki/Elo_rating_system). 
-
-*front end currently work in progress*
